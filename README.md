@@ -1,5 +1,10 @@
 # Workflow Engine UI (React)
 
-Backend (https://github.com/nisargrbhatt/workflow-engine)
+[Workflow Engine Backend](https://github.com/nisargrbhatt/workflow-engine)
+
+## R&D
+
+- UI: https://www.npmjs.com/package/drawflow
+- Monaco: https://jsfiddle.net/hec12da1/62/
 
 Author: Nisarg Bhatt
