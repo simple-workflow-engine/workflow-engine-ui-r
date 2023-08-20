@@ -7,6 +7,7 @@ import Layout from './components/Layout/Layout';
 import { Suspense, lazy } from 'react';
 
 const WorkflowListPage = lazy(() => import('./pages/workflow-list/page'));
+const WorkflowCreatePage = lazy(() => import('./pages/create/page'));
 
 const App = () => {
   const navigation = useNavigate();
@@ -34,6 +35,14 @@ const App = () => {
               element={
                 <Suspense fallback={<p>Loading...</p>}>
                   <WorkflowListPage />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/create"
+              element={
+                <Suspense fallback={<p>Loading...</p>}>
+                  <WorkflowCreatePage />
                 </Suspense>
               }
             />
