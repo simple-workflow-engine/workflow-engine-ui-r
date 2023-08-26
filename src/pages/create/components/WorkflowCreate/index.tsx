@@ -37,6 +37,10 @@ import { z } from 'zod';
 import WorkflowGlobalMonaco from '../WorkflowGlobalMonaco';
 import { Error } from '@mui/icons-material';
 import FunctionsIcon from '@mui/icons-material/Functions';
+import StartTask from '@/components/Tasks/Start';
+import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
+import StopCircleIcon from '@mui/icons-material/StopCircle';
+import EndTask from '@/components/Tasks/End';
 
 const Transition = forwardRef(function Transition(
   props: TransitionProps & {
@@ -66,40 +70,117 @@ type WorkflowMetadataFormSchema = z.infer<typeof workflowMetadataFormSchema>;
 
 const nodeTypes: NodeTypes = {
   function: FunctionTask,
+  start: StartTask,
+  end: EndTask,
 };
 
-const taskCreator: Record<'function', () => Node> = {
+const taskCreator: Record<'function' | 'start' | 'end', () => Node> = {
   function: () => ({
     id: crypto.randomUUID(),
     data: {
-      label: 'New Function',
-      inputBounds: [
-        {
-          id: crypto.randomUUID(),
-        },
-      ],
-      outputBounds: [
-        {
-          id: crypto.randomUUID(),
-        },
-      ],
+      label: ['Function', crypto.randomUUID()].join(' '),
+      inputBoundId: crypto.randomUUID(),
+      outputBoundId: crypto.randomUUID(),
     },
     position: { x: 100, y: 100 },
     type: 'function',
+  }),
+  start: () => ({
+    id: crypto.randomUUID(),
+    data: {
+      label: ['Start', crypto.randomUUID()].join(' '),
+      outputBoundId: crypto.randomUUID(),
+    },
+    position: { x: 100, y: 100 },
+    type: 'start',
+  }),
+  end: () => ({
+    id: crypto.randomUUID(),
+    data: {
+      label: ['End', crypto.randomUUID()].join(' '),
+      inputBoundId: crypto.randomUUID(),
+    },
+    position: { x: 100, y: 100 },
+    type: 'end',
   }),
 };
 
 const initialNodes: Node[] = [
   {
-    id: '1',
-    position: { x: 100, y: 50 },
-    data: { label: '1', inputBounds: [{ id: 'a' }], outputBounds: [{ id: 'a' }] },
+    id: 'a8c86331-880f-43d1-8bdb-906f5b2715b0',
+    data: {
+      label: 'Test Task',
+      inputBoundId: '23c1b944-0d73-4e32-b901-37ac2c21c05d',
+      outputBoundId: '6e61e128-1d27-4cad-b597-653990a9ca67',
+    },
+    position: {
+      x: 638.7184283607929,
+      y: 271.17332897421414,
+    },
     type: 'function',
+    selected: false,
+    positionAbsolute: {
+      x: 638.7184283607929,
+      y: 271.17332897421414,
+    },
+    dragging: false,
   },
-  { id: '2', position: { x: 300, y: 100 }, data: { label: '2' } },
+  {
+    id: '24a7188e-d17b-4a5f-94a0-89286edc8b9f',
+    data: {
+      label: 'End Task',
+      inputBoundId: '4b05ea04-ecbc-4f4f-80ef-9f0d4ae21d53',
+    },
+    position: {
+      x: 640.7336773039084,
+      y: 510.40481776943034,
+    },
+    type: 'end',
+    selected: true,
+    positionAbsolute: {
+      x: 640.7336773039084,
+      y: 510.40481776943034,
+    },
+    dragging: false,
+  },
+  {
+    id: '2f8f2520-46be-4199-b85e-e889a29c2f01',
+    data: {
+      label: 'Start Task',
+      outputBoundId: '6fcf0614-e0d1-4fb8-9446-0026bad0b481',
+    },
+    position: {
+      x: 635.7063180445617,
+      y: 29.03410258347799,
+    },
+    type: 'start',
+    selected: false,
+    positionAbsolute: {
+      x: 635.7063180445617,
+      y: 29.03410258347799,
+    },
+    dragging: false,
+  },
 ];
 
-const initialEdges: Edge[] = [{ id: 'e1-2', source: '1', target: '2', animated: true, updatable: true }];
+const initialEdges: Edge[] = [
+  {
+    source: '2f8f2520-46be-4199-b85e-e889a29c2f01',
+    sourceHandle: '6fcf0614-e0d1-4fb8-9446-0026bad0b481',
+    target: 'a8c86331-880f-43d1-8bdb-906f5b2715b0',
+    targetHandle: '23c1b944-0d73-4e32-b901-37ac2c21c05d',
+    animated: true,
+    id: 'reactflow__edge-2f8f2520-46be-4199-b85e-e889a29c2f016fcf0614-e0d1-4fb8-9446-0026bad0b481-a8c86331-880f-43d1-8bdb-906f5b2715b023c1b944-0d73-4e32-b901-37ac2c21c05d',
+  },
+  {
+    source: 'a8c86331-880f-43d1-8bdb-906f5b2715b0',
+    sourceHandle: '6e61e128-1d27-4cad-b597-653990a9ca67',
+    target: '24a7188e-d17b-4a5f-94a0-89286edc8b9f',
+    targetHandle: '4b05ea04-ecbc-4f4f-80ef-9f0d4ae21d53',
+    animated: true,
+    id: 'reactflow__edge-a8c86331-880f-43d1-8bdb-906f5b2715b06e61e128-1d27-4cad-b597-653990a9ca67-24a7188e-d17b-4a5f-94a0-89286edc8b9f4b05ea04-ecbc-4f4f-80ef-9f0d4ae21d53',
+  },
+];
 
 interface Props {}
 
@@ -197,6 +278,18 @@ const WorkflowCreate: FC<Props> = () => {
                 <FunctionsIcon />
               </ListItemIcon>
               <ListItemText>Function</ListItemText>
+            </MenuItem>
+            <MenuItem onClick={() => addNewTask('start')}>
+              <ListItemIcon>
+                <PlayCircleOutlineIcon />
+              </ListItemIcon>
+              <ListItemText>Start</ListItemText>
+            </MenuItem>
+            <MenuItem onClick={() => addNewTask('end')}>
+              <ListItemIcon>
+                <StopCircleIcon />
+              </ListItemIcon>
+              <ListItemText>End</ListItemText>
             </MenuItem>
           </Menu>
         </Stack>

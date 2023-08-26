@@ -4,7 +4,7 @@ import { type FC } from 'react';
 
 import { ReactFlowProvider } from 'reactflow';
 
-import WorkflowCreate from '../workflow-list/components/WorkflowCreate';
+import WorkflowCreate from './components/WorkflowCreate';
 
 interface Props {}
 

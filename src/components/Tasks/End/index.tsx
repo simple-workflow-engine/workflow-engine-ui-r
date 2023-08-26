@@ -1,32 +1,32 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import {
-  AppBar,
-  Button,
-  Card,
-  CardActions,
-  CardHeader,
-  Container,
-  Dialog,
-  IconButton,
   Slide,
+  Card,
+  CardHeader,
+  Tooltip,
+  CardActions,
+  Button,
+  Dialog,
+  AppBar,
+  Toolbar,
+  IconButton,
+  Typography,
+  Container,
   Stack,
   TextField,
-  Toolbar,
-  Tooltip,
-  Typography,
 } from '@mui/material';
-import type { TransitionProps } from '@mui/material/transitions';
+import type { TransitionProps } from 'notistack';
+import { useSnackbar } from 'notistack';
 import type { FC, ReactElement, Ref } from 'react';
 import { forwardRef, useCallback, useState } from 'react';
+import { useForm, Controller } from 'react-hook-form';
 import type { NodeProps } from 'reactflow';
 import { Handle, Position, useReactFlow } from 'reactflow';
 import CloseIcon from '@mui/icons-material/Close';
-import FunctionsIcon from '@mui/icons-material/Functions';
+import StopCircleIcon from '@mui/icons-material/StopCircle';
 import { z } from 'zod';
-import { Controller, useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useSnackbar } from 'notistack';
 
-const functionConfigSchema = z.object({
+const endConfigSchema = z.object({
   label: z
     .string({
       required_error: 'Label is required',
@@ -34,7 +34,7 @@ const functionConfigSchema = z.object({
     .min(1, 'Label is required'),
 });
 
-type FunctionConfigSchema = z.infer<typeof functionConfigSchema>;
+type EndConfigSchema = z.infer<typeof endConfigSchema>;
 
 const Transition = forwardRef(function Transition(
   props: TransitionProps & {
@@ -45,21 +45,20 @@ const Transition = forwardRef(function Transition(
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
-interface DataProp {
+interface DataProps {
   label: string;
   inputBoundId: string;
-  outputBoundId: string;
 }
 
-const FunctionTask: FC<NodeProps<DataProp>> = ({ data, id }) => {
+const EndTask: FC<NodeProps<DataProps>> = ({ data, id }) => {
   const { setNodes, getNode } = useReactFlow();
 
   const [openConfigPanel, setOpenConfigPanel] = useState<boolean>(false);
 
   const { enqueueSnackbar } = useSnackbar();
 
-  const { control, handleSubmit } = useForm<FunctionConfigSchema>({
-    resolver: zodResolver(functionConfigSchema),
+  const { control, handleSubmit } = useForm<EndConfigSchema>({
+    resolver: zodResolver(endConfigSchema),
     values: {
       label: data?.label ?? '',
     },
@@ -70,7 +69,7 @@ const FunctionTask: FC<NodeProps<DataProp>> = ({ data, id }) => {
   }, [setNodes]);
 
   const changeValues = useCallback(
-    (value: FunctionConfigSchema) => {
+    (value: EndConfigSchema) => {
       const currentNode = getNode(id);
       if (currentNode) {
         const newData = {
@@ -92,6 +91,14 @@ const FunctionTask: FC<NodeProps<DataProp>> = ({ data, id }) => {
     [setNodes]
   );
 
+  const handleConfigPanelOpen = () => {
+    setOpenConfigPanel(() => true);
+  };
+
+  const handleConfigPanelClose = () => {
+    setOpenConfigPanel(() => false);
+  };
+
   const submitHandler = handleSubmit(async (value) => {
     changeValues(value);
     enqueueSnackbar('Config changed successfully', {
@@ -101,24 +108,15 @@ const FunctionTask: FC<NodeProps<DataProp>> = ({ data, id }) => {
     handleConfigPanelClose();
   });
 
-  const handleConfigPanelOpen = () => {
-    setOpenConfigPanel(() => true);
-  };
-
-  const handleConfigPanelClose = () => {
-    setOpenConfigPanel(() => false);
-  };
-
   return (
     <Card>
       <Handle type="target" position={Position.Top} id={data?.inputBoundId} />
-
       <CardHeader
         title={data?.label ?? ''}
-        subheader={'Function'}
+        subheader={'End'}
         action={
           <Tooltip title={['ID', id].join(' : ')}>
-            <FunctionsIcon color="primary" />
+            <StopCircleIcon color="primary" />
           </Tooltip>
         }
       />
@@ -188,10 +186,8 @@ const FunctionTask: FC<NodeProps<DataProp>> = ({ data, id }) => {
           </Container>
         </Dialog>
       </CardActions>
-
-      <Handle type="source" position={Position.Bottom} id={data?.outputBoundId} />
     </Card>
   );
 };
 
-export default FunctionTask;
+export default EndTask;
