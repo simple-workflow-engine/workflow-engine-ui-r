@@ -1,13 +1,13 @@
 import { Auth0Provider } from '@auth0/auth0-react';
-import { ThemeProvider } from '@mui/material/styles';
-import { Link, Route, Routes, useNavigate } from 'react-router-dom';
-import { theme } from '@lib/theme/theme';
-import HomePage from './pages/home/page';
-import Layout from './components/Layout/Layout';
+import { Route, Routes, useNavigate } from 'react-router-dom';
+import HomePage from '@pages/home/page';
+import Layout from '@components/Layout/Layout';
 import { Suspense, lazy } from 'react';
+import PageLoader from '@components/common/Loader/PageLoader';
+import NotFoundPage from './pages/404/page';
 
-const WorkflowListPage = lazy(() => import('./pages/workflow-list/page'));
-const WorkflowCreatePage = lazy(() => import('./pages/create/page'));
+const WorkflowListPage = lazy(() => import('@pages/workflow-list/page'));
+const WorkflowCreatePage = lazy(() => import('@pages/create/page'));
 
 const App = () => {
   const navigation = useNavigate();
@@ -26,30 +26,28 @@ const App = () => {
         navigation(redirectURL);
       }}
     >
-      <ThemeProvider theme={theme}>
-        <Layout>
-          <Routes>
-            <Route path="/" index element={<HomePage />} />
-            <Route
-              path="/workflows"
-              element={
-                <Suspense fallback={<p>Loading...</p>}>
-                  <WorkflowListPage />
-                </Suspense>
-              }
-            />
-            <Route
-              path="/create"
-              element={
-                <Suspense fallback={<p>Loading...</p>}>
-                  <WorkflowCreatePage />
-                </Suspense>
-              }
-            />
-            <Route path="*" element={<Link to="/">No page found, Go to home</Link>} />
-          </Routes>
-        </Layout>
-      </ThemeProvider>
+      <Layout>
+        <Routes>
+          <Route path="/" index element={<HomePage />} />
+          <Route
+            path="/workflows"
+            element={
+              <Suspense fallback={<PageLoader />}>
+                <WorkflowListPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/create"
+            element={
+              <Suspense fallback={<PageLoader />}>
+                <WorkflowCreatePage />
+              </Suspense>
+            }
+          />
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </Layout>
     </Auth0Provider>
   );
 };
