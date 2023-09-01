@@ -41,6 +41,10 @@ import StartTask from '@/components/Tasks/Start';
 import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import StopCircleIcon from '@mui/icons-material/StopCircle';
 import EndTask from '@/components/Tasks/End';
+import { LoadingButton } from '@mui/lab';
+import { httpClient } from '@/lib/http/httpClient';
+import { useAuth0 } from '@auth0/auth0-react';
+import { enqueueSnackbar } from 'notistack';
 
 const Transition = forwardRef(function Transition(
   props: TransitionProps & {
@@ -185,8 +189,11 @@ const initialEdges: Edge[] = [
 interface Props {}
 
 const WorkflowCreate: FC<Props> = () => {
+  const { getAccessTokenSilently, logout } = useAuth0();
   const [menuEl, setMenuEl] = useState<null | HTMLElement>(null);
   const open = Boolean(menuEl);
+
+  const [formLoading, setFormLoading] = useState<boolean>(false);
 
   const [nodes, _, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
@@ -196,7 +203,7 @@ const WorkflowCreate: FC<Props> = () => {
 
   const [globalEditorError, setGlobalEditorError] = useState<string | null>(null);
 
-  const { control, setValue, watch } = useForm<WorkflowMetadataFormSchema>({
+  const { control, setValue, watch, handleSubmit } = useForm<WorkflowMetadataFormSchema>({
     resolver: zodResolver(workflowMetadataFormSchema),
     mode: 'all',
     values: {
@@ -246,6 +253,76 @@ const WorkflowCreate: FC<Props> = () => {
     handleMenuClose();
   };
 
+  const submitHandle = handleSubmit(async (values) => {
+    setFormLoading(() => true);
+
+    const parsedTask = nodes.map((item) => ({
+      id: item?.id,
+      name: item.data?.label,
+      type: item.type?.toUpperCase(),
+      next: edges
+        .filter((val) => val?.sourceHandle === item?.data?.outputBoundId)
+        .map((edge) => nodes.find((node) => node.id === edge.target)?.data?.label)
+        .filter((v) => !!v),
+      previous: edges
+        .filter((val) => val?.targetHandle === item?.data?.inputBoundId)
+        .map((edge) => nodes.find((node) => node.id === edge.source)?.data?.label)
+        .filter((v) => !!v),
+    }));
+
+    const workflowData = {
+      name: values.name,
+      description: values.description,
+      global: values.global,
+      tasks: parsedTask,
+      mode: values.status,
+    };
+
+    const token = await getAccessTokenSilently();
+
+    if (!token) {
+      enqueueSnackbar('Unauthorized', {
+        variant: 'error',
+        autoHideDuration: 2 * 1000,
+      });
+      logout();
+    }
+
+    await httpClient
+      .post(
+        '/add-workflow',
+        {
+          workflowData,
+          key: 'react',
+          ui: {
+            nodes,
+            edges,
+          },
+        },
+        {
+          headers: {
+            Authorization: ['Bearer', token].join(' '),
+          },
+        }
+      )
+      .then(() => {
+        enqueueSnackbar('Workflow added successfully', {
+          variant: 'success',
+          autoHideDuration: 2 * 1000,
+        });
+      })
+      .catch((error) => {
+        console.error(error);
+        enqueueSnackbar('Workflow addition failed', {
+          variant: 'error',
+          autoHideDuration: 2 * 1000,
+        });
+      })
+      .finally(() => {
+        setFormLoading(() => false);
+      });
+  });
+
   return (
     <Box>
       <Stack
@@ -257,41 +334,55 @@ const WorkflowCreate: FC<Props> = () => {
         alignItems={'flex-start'}
         rowGap={4}
       >
-        <Stack direction={'row'} justifyContent={'flex-start'} alignItems={'center'} columnGap={2}>
-          <Button variant="outlined" onClick={openDefinitionDialog}>
-            Configure Definition
-          </Button>
-          <Button variant="contained" onClick={handleMenuOpen}>
-            Add Task
-          </Button>
-          <Menu
-            id="basic-menu"
-            anchorEl={menuEl}
-            open={open}
-            onClose={handleMenuClose}
-            MenuListProps={{
-              'aria-labelledby': 'basic-button',
-            }}
-          >
-            <MenuItem onClick={() => addNewTask('function')}>
-              <ListItemIcon>
-                <FunctionsIcon />
-              </ListItemIcon>
-              <ListItemText>Function</ListItemText>
-            </MenuItem>
-            <MenuItem onClick={() => addNewTask('start')}>
-              <ListItemIcon>
-                <PlayCircleOutlineIcon />
-              </ListItemIcon>
-              <ListItemText>Start</ListItemText>
-            </MenuItem>
-            <MenuItem onClick={() => addNewTask('end')}>
-              <ListItemIcon>
-                <StopCircleIcon />
-              </ListItemIcon>
-              <ListItemText>End</ListItemText>
-            </MenuItem>
-          </Menu>
+        <Stack
+          sx={{
+            width: '100%',
+          }}
+          direction={'row'}
+          justifyContent={'space-between'}
+          alignItems={'center'}
+          columnGap={2}
+        >
+          <Stack direction={'row'} justifyContent={'flex-start'} alignItems={'center'} columnGap={2}>
+            <Button variant="outlined" onClick={openDefinitionDialog}>
+              Configure Definition
+            </Button>
+            <Button variant="contained" onClick={handleMenuOpen}>
+              Add Task
+            </Button>
+
+            <Menu
+              id="basic-menu"
+              anchorEl={menuEl}
+              open={open}
+              onClose={handleMenuClose}
+              MenuListProps={{
+                'aria-labelledby': 'basic-button',
+              }}
+            >
+              <MenuItem onClick={() => addNewTask('function')}>
+                <ListItemIcon>
+                  <FunctionsIcon />
+                </ListItemIcon>
+                <ListItemText>Function</ListItemText>
+              </MenuItem>
+              <MenuItem onClick={() => addNewTask('start')}>
+                <ListItemIcon>
+                  <PlayCircleOutlineIcon />
+                </ListItemIcon>
+                <ListItemText>Start</ListItemText>
+              </MenuItem>
+              <MenuItem onClick={() => addNewTask('end')}>
+                <ListItemIcon>
+                  <StopCircleIcon />
+                </ListItemIcon>
+                <ListItemText>End</ListItemText>
+              </MenuItem>
+            </Menu>
+          </Stack>
+          <LoadingButton variant="contained" loading={formLoading} onClick={submitHandle}>
+            Submit
+          </LoadingButton>
         </Stack>
         <ReactFlow
           nodes={nodes}
