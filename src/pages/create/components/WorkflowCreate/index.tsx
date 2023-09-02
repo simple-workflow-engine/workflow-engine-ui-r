@@ -3,6 +3,7 @@ import FunctionTask from '@/components/Tasks/Function';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   AppBar,
+  Badge,
   Box,
   Button,
   Container,
@@ -203,7 +204,7 @@ const WorkflowCreate: FC<Props> = () => {
 
   const [globalEditorError, setGlobalEditorError] = useState<string | null>(null);
 
-  const { control, setValue, watch, handleSubmit } = useForm<WorkflowMetadataFormSchema>({
+  const { control, setValue, watch, handleSubmit, formState } = useForm<WorkflowMetadataFormSchema>({
     resolver: zodResolver(workflowMetadataFormSchema),
     mode: 'all',
     values: {
@@ -275,7 +276,7 @@ const WorkflowCreate: FC<Props> = () => {
       description: values.description,
       global: values.global,
       tasks: parsedTask,
-      mode: values.status,
+      status: values.status,
     };
 
     const token = await getAccessTokenSilently();
@@ -290,7 +291,7 @@ const WorkflowCreate: FC<Props> = () => {
 
     await httpClient
       .post(
-        '/add-workflow',
+        '/definition/add-workflow',
         {
           workflowData,
           key: 'react',
@@ -344,9 +345,11 @@ const WorkflowCreate: FC<Props> = () => {
           columnGap={2}
         >
           <Stack direction={'row'} justifyContent={'flex-start'} alignItems={'center'} columnGap={2}>
-            <Button variant="outlined" onClick={openDefinitionDialog}>
-              Configure Definition
-            </Button>
+            <Badge color="error" badgeContent={Object.keys(formState?.errors).length}>
+              <Button variant="outlined" onClick={openDefinitionDialog}>
+                Configure Definition
+              </Button>
+            </Badge>
             <Button variant="contained" onClick={handleMenuOpen}>
               Add Task
             </Button>

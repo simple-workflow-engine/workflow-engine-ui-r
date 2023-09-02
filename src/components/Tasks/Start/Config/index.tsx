@@ -29,7 +29,7 @@ const Transition = forwardRef(function Transition(
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
-const functionConfigSchema = z.object({
+const startConfigSchema = z.object({
   label: z
     .string({
       required_error: 'Label is required',
@@ -37,19 +37,19 @@ const functionConfigSchema = z.object({
     .min(1, 'Label is required'),
 });
 
-export type FunctionConfigSchema = z.infer<typeof functionConfigSchema>;
+export type StartConfigSchema = z.infer<typeof startConfigSchema>;
 
 interface Props {
-  onSubmit: (value: FunctionConfigSchema) => void;
-  initialValue: FunctionConfigSchema;
+  onSubmit: (value: StartConfigSchema) => void;
+  initialValue: StartConfigSchema;
   deleteNode: Function;
 }
 
-const FunctionConfigPanel: FC<Props> = ({ onSubmit, initialValue, deleteNode }) => {
+const StartConfigPanel: FC<Props> = ({ onSubmit, initialValue, deleteNode }) => {
   const [openConfigPanel, setOpenConfigPanel] = useState<boolean>(false);
 
-  const { control, handleSubmit, formState } = useForm<FunctionConfigSchema>({
-    resolver: zodResolver(functionConfigSchema),
+  const { control, handleSubmit, formState } = useForm<StartConfigSchema>({
+    resolver: zodResolver(startConfigSchema),
     values: {
       label: initialValue?.label ?? '',
     },
@@ -145,4 +145,4 @@ const FunctionConfigPanel: FC<Props> = ({ onSubmit, initialValue, deleteNode }) 
   );
 };
 
-export default FunctionConfigPanel;
+export default StartConfigPanel;
