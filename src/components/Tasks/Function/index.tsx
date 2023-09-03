@@ -12,6 +12,9 @@ interface DataProp {
   label: string;
   inputBoundId: string;
   outputBoundId: string;
+  params: Record<string, any>;
+  exec: string;
+  execTs: string;
 }
 
 const FunctionTask: FC<NodeProps<DataProp>> = ({ data, id }) => {

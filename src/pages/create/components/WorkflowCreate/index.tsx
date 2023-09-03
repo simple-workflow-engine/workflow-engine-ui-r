@@ -21,7 +21,7 @@ import {
 } from '@mui/material';
 import type { TransitionProps } from '@mui/material/transitions';
 import type { FC, MouseEvent, ReactElement, Ref } from 'react';
-import { forwardRef, useCallback, useState } from 'react';
+import { forwardRef, useCallback, useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import type { Connection, Edge, Node, NodeTypes } from 'reactflow';
 import ReactFlow, {
@@ -46,6 +46,7 @@ import { LoadingButton } from '@mui/lab';
 import { httpClient } from '@/lib/http/httpClient';
 import { useAuth0 } from '@auth0/auth0-react';
 import { enqueueSnackbar } from 'notistack';
+import { useWorkflowDefinitionContext } from '@/contexts/WorkflowDefinitionContext';
 
 const Transition = forwardRef(function Transition(
   props: TransitionProps & {
@@ -86,7 +87,27 @@ const taskCreator: Record<'function' | 'start' | 'end', () => Node> = {
       label: ['Function', crypto.randomUUID()].join(' '),
       inputBoundId: crypto.randomUUID(),
       outputBoundId: crypto.randomUUID(),
+      execTs: `
+      /**
+       * @returns {Promise<string>} Return JSON.stringify output. If you want to return any object, send it JSON.stringify. For null/undefined, return JSON.stringify({})
+       * @see {@link https://docs.workflow-engine.com/Function_Task}
+      */
+      async function handler(): Promise<string> {
+        return JSON.stringify({});
+      }
+            `,
+      exec: `
+            /**
+             * @returns {Promise<string>} Return JSON.stringify output. If you want to return any object, send it JSON.stringify. For null/undefined, return JSON.stringify({})
+             * @see {@link https://docs.workflow-engine.com/Function_Task}
+             */
+            async function handler() {
+              return JSON.stringify({});
+            }
+            `,
+      params: {},
     },
+
     position: { x: 100, y: 100 },
     type: 'function',
   }),
@@ -95,6 +116,7 @@ const taskCreator: Record<'function' | 'start' | 'end', () => Node> = {
     data: {
       label: ['Start', crypto.randomUUID()].join(' '),
       outputBoundId: crypto.randomUUID(),
+      params: {},
     },
     position: { x: 100, y: 100 },
     type: 'start',
@@ -104,6 +126,7 @@ const taskCreator: Record<'function' | 'start' | 'end', () => Node> = {
     data: {
       label: ['End', crypto.randomUUID()].join(' '),
       inputBoundId: crypto.randomUUID(),
+      params: {},
     },
     position: { x: 100, y: 100 },
     type: 'end',
@@ -115,6 +138,9 @@ const initialNodes: Node[] = [
     id: 'a8c86331-880f-43d1-8bdb-906f5b2715b0',
     data: {
       label: 'Test Task',
+      params: {
+        token: 'abc',
+      },
       inputBoundId: '23c1b944-0d73-4e32-b901-37ac2c21c05d',
       outputBoundId: '6e61e128-1d27-4cad-b597-653990a9ca67',
     },
@@ -190,6 +216,7 @@ const initialEdges: Edge[] = [
 interface Props {}
 
 const WorkflowCreate: FC<Props> = () => {
+  const { setConfig } = useWorkflowDefinitionContext();
   const { getAccessTokenSilently, logout } = useAuth0();
   const [menuEl, setMenuEl] = useState<null | HTMLElement>(null);
   const open = Boolean(menuEl);
@@ -216,6 +243,10 @@ const WorkflowCreate: FC<Props> = () => {
   });
 
   const globalObjectValue = watch('global');
+
+  useEffect(() => {
+    setConfig(globalObjectValue);
+  }, [globalObjectValue]);
 
   const handleGlobalEditorError = (error: string | null) => {
     setGlobalEditorError(() => error);
@@ -261,6 +292,7 @@ const WorkflowCreate: FC<Props> = () => {
       id: item?.id,
       name: item.data?.label,
       type: item.type?.toUpperCase(),
+      params: item?.data?.params ?? {},
       next: edges
         .filter((val) => val?.sourceHandle === item?.data?.outputBoundId)
         .map((edge) => nodes.find((node) => node.id === edge.target)?.data?.label)
@@ -269,6 +301,12 @@ const WorkflowCreate: FC<Props> = () => {
         .filter((val) => val?.targetHandle === item?.data?.inputBoundId)
         .map((edge) => nodes.find((node) => node.id === edge.source)?.data?.label)
         .filter((v) => !!v),
+      ...(item?.data?.exec && {
+        exec: item?.data?.exec,
+      }),
+      ...(item?.data?.execTs && {
+        execTs: item?.data?.execTs,
+      }),
     }));
 
     const workflowData = {

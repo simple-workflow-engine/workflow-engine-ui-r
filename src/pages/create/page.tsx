@@ -5,6 +5,7 @@ import { type FC } from 'react';
 import { ReactFlowProvider } from 'reactflow';
 
 import WorkflowCreate from './components/WorkflowCreate';
+import WorkflowDefinitionContextProvider from '@/contexts/WorkflowDefinitionContext';
 
 interface Props {}
 
@@ -16,7 +17,9 @@ const WorkflowDefinitionCreatePage: FC<Props> = () => (
     }}
   >
     <ReactFlowProvider>
-      <WorkflowCreate />
+      <WorkflowDefinitionContextProvider>
+        <WorkflowCreate />
+      </WorkflowDefinitionContextProvider>
     </ReactFlowProvider>
   </Box>
 );
