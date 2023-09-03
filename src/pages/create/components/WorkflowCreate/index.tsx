@@ -47,6 +47,7 @@ import { httpClient } from '@/lib/http/httpClient';
 import { useAuth0 } from '@auth0/auth0-react';
 import { enqueueSnackbar } from 'notistack';
 import { useWorkflowDefinitionContext } from '@/contexts/WorkflowDefinitionContext';
+import { useNavigate } from 'react-router-dom';
 
 const Transition = forwardRef(function Transition(
   props: TransitionProps & {
@@ -221,6 +222,7 @@ const WorkflowCreate: FC<Props> = () => {
   const [menuEl, setMenuEl] = useState<null | HTMLElement>(null);
   const open = Boolean(menuEl);
 
+  const navigate = useNavigate();
   const [formLoading, setFormLoading] = useState<boolean>(false);
 
   const [nodes, _, onNodesChange] = useNodesState(initialNodes);
@@ -349,6 +351,7 @@ const WorkflowCreate: FC<Props> = () => {
           variant: 'success',
           autoHideDuration: 2 * 1000,
         });
+        navigate('/workflows');
       })
       .catch((error) => {
         console.error(error);
@@ -443,7 +446,7 @@ const WorkflowCreate: FC<Props> = () => {
           <Background />
         </ReactFlow>
         <Dialog fullScreen open={definitionDialog} onClose={closeDefinitionDialog} TransitionComponent={Transition}>
-          <AppBar sx={{ position: 'relative' }}>
+          <AppBar position="sticky">
             <Toolbar>
               <IconButton edge="start" color="inherit" onClick={closeDefinitionDialog} aria-label="close">
                 <CloseIcon />
@@ -460,7 +463,7 @@ const WorkflowCreate: FC<Props> = () => {
               }}
               justifyContent={'flex-start'}
               alignItems={'flex-start'}
-              rowGap={2}
+              rowGap={4}
             >
               <Controller
                 control={control}
@@ -510,7 +513,7 @@ const WorkflowCreate: FC<Props> = () => {
                   </TextField>
                 )}
               />
-
+              <Typography>Global:</Typography>
               {globalEditorError && (
                 <Stack direction={'row'} justifyContent={'flex-start'} alignItems={'center'} columnGap={2}>
                   <Error color="error" />

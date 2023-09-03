@@ -8,6 +8,7 @@ import NotFoundPage from './pages/404/page';
 
 const WorkflowListPage = lazy(() => import('@pages/workflow-list/page'));
 const WorkflowCreatePage = lazy(() => import('@pages/create/page'));
+const WorkflowDetailPage = lazy(() => import('@pages/detail/page'));
 
 const App = () => {
   const navigation = useNavigate();
@@ -45,6 +46,15 @@ const App = () => {
               </Suspense>
             }
           />
+          <Route
+            path="/workflows/:id"
+            element={
+              <Suspense fallback={<PageLoader />}>
+                <WorkflowDetailPage />
+              </Suspense>
+            }
+          />
+
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </Layout>

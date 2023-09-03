@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import type { TransitionProps } from 'notistack';
 import { useSnackbar } from 'notistack';
 import type { FC, ReactElement, Ref } from 'react';
-import { forwardRef, useState } from 'react';
+import { forwardRef, useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import CloseIcon from '@mui/icons-material/Close';
@@ -19,6 +19,7 @@ import {
   Slide,
   Badge,
 } from '@mui/material';
+import { useReactFlow } from 'reactflow';
 
 const Transition = forwardRef(function Transition(
   props: TransitionProps & {
@@ -43,18 +44,45 @@ interface Props {
   onSubmit: (value: EndConfigSchema) => void;
   initialValue: EndConfigSchema;
   deleteNode: Function;
+  id: string;
 }
 
-const EndConfigPanel: FC<Props> = ({ onSubmit, initialValue, deleteNode }) => {
+const EndConfigPanel: FC<Props> = ({ onSubmit, initialValue, deleteNode, id }) => {
+  const { getNodes } = useReactFlow();
   const [openConfigPanel, setOpenConfigPanel] = useState<boolean>(false);
+  const [labelUniqueError, setLabelUniqueError] = useState<string | null>(null);
 
-  const { control, handleSubmit, formState } = useForm<EndConfigSchema>({
+  const { control, handleSubmit, formState, watch } = useForm<EndConfigSchema>({
     resolver: zodResolver(endConfigSchema),
     values: {
       label: initialValue?.label ?? '',
     },
   });
+
+  const labelValue = watch('label');
+
   const { enqueueSnackbar } = useSnackbar();
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      const nodes = getNodes();
+
+      if (
+        nodes
+          .filter((node) => node.id !== id)
+          .map((node) => node?.data?.label)
+          .includes(labelValue)
+      ) {
+        setLabelUniqueError(() => 'Task name already exist');
+      } else {
+        setLabelUniqueError(() => null);
+      }
+    }, 500);
+
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [labelValue]);
 
   const submitHandler = handleSubmit(async (value) => {
     onSubmit(value);
@@ -75,7 +103,7 @@ const EndConfigPanel: FC<Props> = ({ onSubmit, initialValue, deleteNode }) => {
 
   return (
     <>
-      <Badge color="error" badgeContent={Object.keys(formState.errors).length}>
+      <Badge color="error" badgeContent={Object.keys(formState.errors).length + (labelUniqueError ? 1 : 0)}>
         <Button variant="outlined" onClick={handleConfigPanelOpen}>
           Configure
         </Button>
@@ -116,8 +144,8 @@ const EndConfigPanel: FC<Props> = ({ onSubmit, initialValue, deleteNode }) => {
                       {...field}
                       label="Label"
                       placeholder="Name of the Task"
-                      error={!!fieldState?.error?.message}
-                      helperText={fieldState?.error?.message}
+                      error={!!fieldState?.error?.message || !!labelUniqueError}
+                      helperText={labelUniqueError ?? fieldState?.error?.message}
                       fullWidth
                     />
                   )}

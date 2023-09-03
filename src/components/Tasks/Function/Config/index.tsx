@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import type { TransitionProps } from 'notistack';
 import { useSnackbar } from 'notistack';
 import type { FC, ReactElement, Ref } from 'react';
-import { forwardRef, useState } from 'react';
+import { forwardRef, useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import CloseIcon from '@mui/icons-material/Close';
@@ -25,6 +25,7 @@ import {
 import { Error } from '@mui/icons-material';
 import ParamsMonaco from './ParamsMonaco';
 import ExecMonaco from './ExecMonaco';
+import { useReactFlow } from 'reactflow';
 
 const Transition = forwardRef(function Transition(
   props: TransitionProps & {
@@ -62,12 +63,15 @@ interface Props {
   onSubmit: (value: FunctionConfigSchema) => void;
   initialValue: FunctionConfigSchema;
   deleteNode: Function;
+  id: string;
 }
 
-const FunctionConfigPanel: FC<Props> = ({ onSubmit, initialValue, deleteNode }) => {
+const FunctionConfigPanel: FC<Props> = ({ onSubmit, initialValue, deleteNode, id }) => {
+  const { getNodes } = useReactFlow();
   const [openConfigPanel, setOpenConfigPanel] = useState<boolean>(false);
   const [paramsEditorError, setParamsEditorError] = useState<string | null>(null);
   const [execEditorError, setExecEditorError] = useState<string | null>(null);
+  const [labelUniqueError, setLabelUniqueError] = useState<string | null>(null);
   const [activeStep, setActiveStep] = useState<number>(0);
 
   const { control, handleSubmit, formState, watch, setValue } = useForm<FunctionConfigSchema>({
@@ -89,11 +93,32 @@ async function handler(): Promise<string> {
       `,
     },
   });
-
+  const labelValue = watch('label');
   const paramsObjectValue = watch('params');
   const execObjectValue = watch('execTs');
 
   const { enqueueSnackbar } = useSnackbar();
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      const nodes = getNodes();
+
+      if (
+        nodes
+          .filter((node) => node.id !== id)
+          .map((node) => node?.data?.label)
+          .includes(labelValue)
+      ) {
+        setLabelUniqueError(() => 'Task name already exist');
+      } else {
+        setLabelUniqueError(() => null);
+      }
+    }, 500);
+
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [labelValue]);
 
   const handleParamsEditorError = (error: string | null) => {
     setParamsEditorError(() => error);
@@ -122,7 +147,15 @@ async function handler(): Promise<string> {
 
   return (
     <>
-      <Badge color="error" badgeContent={Object.keys(formState.errors).length}>
+      <Badge
+        color="error"
+        badgeContent={
+          Object.keys(formState.errors).length +
+          (labelUniqueError ? 1 : 0) +
+          (execEditorError ? 1 : 0) +
+          (paramsEditorError ? 1 : 0)
+        }
+      >
         <Button variant="outlined" onClick={handleConfigPanelOpen}>
           Configure
         </Button>
@@ -178,8 +211,8 @@ async function handler(): Promise<string> {
                         {...field}
                         label="Label"
                         placeholder="Name of the Task"
-                        error={!!fieldState?.error?.message}
-                        helperText={fieldState?.error?.message}
+                        error={!!fieldState?.error?.message || !!labelUniqueError}
+                        helperText={labelUniqueError ?? fieldState?.error?.message}
                         fullWidth
                       />
                     )}

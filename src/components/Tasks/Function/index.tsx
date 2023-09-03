@@ -61,7 +61,7 @@ const FunctionTask: FC<NodeProps<DataProp>> = ({ data, id }) => {
         }
       />
       <CardActions>
-        <FunctionConfigPanel initialValue={data} deleteNode={deleteNode} onSubmit={changeValues} />
+        <FunctionConfigPanel id={id} initialValue={data} deleteNode={deleteNode} onSubmit={changeValues} />
       </CardActions>
 
       <Handle type="source" position={Position.Bottom} id={data?.outputBoundId} />

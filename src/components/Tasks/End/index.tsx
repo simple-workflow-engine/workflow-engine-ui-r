@@ -56,7 +56,7 @@ const EndTask: FC<NodeProps<DataProps>> = ({ data, id }) => {
         }
       />
       <CardActions>
-        <EndConfigPanel initialValue={data} deleteNode={deleteNode} onSubmit={changeValues} />
+        <EndConfigPanel id={id} initialValue={data} deleteNode={deleteNode} onSubmit={changeValues} />
       </CardActions>
     </Card>
   );

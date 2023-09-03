@@ -1,6 +1,6 @@
 import { API, API_NAME } from '@/api/WorkflowDefinitionList/api';
 import { useAuth0, withAuthenticationRequired } from '@auth0/auth0-react';
-import { Box, Button, Card, CardContent, Chip, Stack, Typography } from '@mui/material';
+import { Box, Button, Card, CardContent, Chip, Skeleton, Stack, Typography } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import { type FC } from 'react';
 import { Link } from 'react-router-dom';
@@ -93,6 +93,115 @@ const WorkflowListPage: FC<Props> = () => {
                 </Card>
               </Link>
             ))}
+          </Stack>
+        )}
+        {isLoading && (
+          <Stack justifyContent={'flex-start'} alignItems={'flex-start'} rowGap={2}>
+            <Card
+              elevation={1}
+              sx={{
+                width: '100%',
+                ':hover': {
+                  backgroundColor: (theme) => theme.palette.grey['100'],
+                },
+              }}
+            >
+              <CardContent>
+                <Stack
+                  sx={{
+                    width: '100%',
+                  }}
+                  direction={'row'}
+                  justifyContent={'space-between'}
+                  alignItems={'center'}
+                >
+                  <Skeleton animation="wave" variant="text" width={'100px'} />
+                  <Skeleton animation="wave" variant="rounded" height={'30px'} width={'75px'} />
+                </Stack>
+                <Skeleton animation="wave" variant="text" />
+                <Stack
+                  sx={{
+                    width: '100%',
+                  }}
+                  direction={'row'}
+                  justifyContent={'space-between'}
+                  alignItems={'center'}
+                >
+                  <Skeleton animation="wave" variant="text" width={'100px'} />
+                  <Skeleton animation="wave" variant="text" width={'100px'} />
+                </Stack>
+              </CardContent>
+            </Card>
+            <Card
+              elevation={1}
+              sx={{
+                width: '100%',
+                ':hover': {
+                  backgroundColor: (theme) => theme.palette.grey['100'],
+                },
+              }}
+            >
+              <CardContent>
+                <Stack
+                  sx={{
+                    width: '100%',
+                  }}
+                  direction={'row'}
+                  justifyContent={'space-between'}
+                  alignItems={'center'}
+                >
+                  <Skeleton animation="wave" variant="text" width={'100px'} />
+                  <Skeleton animation="wave" variant="rounded" height={'30px'} width={'75px'} />
+                </Stack>
+                <Skeleton animation="wave" variant="text" />
+                <Stack
+                  sx={{
+                    width: '100%',
+                  }}
+                  direction={'row'}
+                  justifyContent={'space-between'}
+                  alignItems={'center'}
+                >
+                  <Skeleton animation="wave" variant="text" width={'100px'} />
+                  <Skeleton animation="wave" variant="text" width={'100px'} />
+                </Stack>
+              </CardContent>
+            </Card>
+            <Card
+              elevation={1}
+              sx={{
+                width: '100%',
+                ':hover': {
+                  backgroundColor: (theme) => theme.palette.grey['100'],
+                },
+              }}
+            >
+              <CardContent>
+                <Stack
+                  sx={{
+                    width: '100%',
+                  }}
+                  direction={'row'}
+                  justifyContent={'space-between'}
+                  alignItems={'center'}
+                >
+                  <Skeleton animation="wave" variant="text" width={'100px'} />
+                  <Skeleton animation="wave" variant="rounded" height={'30px'} width={'75px'} />
+                </Stack>
+                <Skeleton animation="wave" variant="text" />
+                <Stack
+                  sx={{
+                    width: '100%',
+                  }}
+                  direction={'row'}
+                  justifyContent={'space-between'}
+                  alignItems={'center'}
+                >
+                  <Skeleton animation="wave" variant="text" width={'100px'} />
+                  <Skeleton animation="wave" variant="text" width={'100px'} />
+                </Stack>
+              </CardContent>
+            </Card>
           </Stack>
         )}
       </Stack>
