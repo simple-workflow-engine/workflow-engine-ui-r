@@ -12,6 +12,7 @@ import { type FC, type ReactNode } from 'react';
 
 import { useAuth0 } from '@auth0/auth0-react';
 import { Link } from 'react-router-dom';
+import { Paper } from '@mui/material';
 
 interface Props {
   children: ReactNode;
@@ -78,14 +79,62 @@ const Layout: FC<Props> = ({ children }) => {
         <Container maxWidth="xl">{children}</Container>
       </Box>
 
-      <Box
+      <Paper
+        elevation={2}
         component={'footer'}
         sx={{
           width: '100%',
+          backgroundColor: (theme) => theme.palette.grey['100'],
         }}
       >
-        <Typography>Footer</Typography>
-      </Box>
+        <Stack
+          direction={{
+            md: 'row',
+            sm: 'column',
+            xs: 'column',
+          }}
+          justifyContent={'space-between'}
+          alignItems={'center'}
+          sx={{
+            paddingY: 2,
+            paddingX: 1,
+          }}
+        >
+          <Typography>Workflow Engine</Typography>
+          <Stack direction={'row'} justifyContent={'flex-start'} alignItems={'center'} columnGap={2}>
+            <Typography
+              component={'a'}
+              href="https://github.com/nisargrbhatt/workflow-engine/blob/master/TASKS.md"
+              target="_blank"
+              sx={{
+                color: (theme) => theme.palette.primary.main,
+              }}
+            >
+              Task Guide
+            </Typography>
+            <Typography
+              component={'a'}
+              href="https://discord.com/users/588309124010213396"
+              target="_blank"
+              sx={{
+                color: (theme) => theme.palette.primary.main,
+              }}
+            >
+              Discord
+            </Typography>
+          </Stack>
+          <Typography
+            component={'a'}
+            href="https://github.com/nisargrbhatt"
+            target="_blank"
+            sx={{
+              color: (theme) => theme.palette.primary.main,
+            }}
+          >
+            Nisarg Bhatt
+          </Typography>
+        </Stack>
+      </Paper>
     </Stack>
   );
 };

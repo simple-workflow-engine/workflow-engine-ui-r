@@ -8,7 +8,14 @@ const ResponseSchema = z.object({
   status: z.enum(['active', 'inactive']),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
-  runtimes: z.array(z.any()),
+  runtimes: z.array(
+    z.object({
+      _id: z.string(),
+      workflowStatus: z.enum(['pending', 'completed']),
+      createdAt: z.string().datetime(),
+      updatedAt: z.string().datetime(),
+    })
+  ),
 });
 
 export type ResponseSchemaType = z.infer<typeof ResponseSchema>;

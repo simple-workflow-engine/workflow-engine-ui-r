@@ -15,7 +15,6 @@ const WorkflowListPage: FC<Props> = () => {
   const { data, isLoading } = useQuery({
     queryFn: async () => API(getAccessTokenSilently),
     queryKey: [API_NAME],
-    initialData: [],
   });
 
   return (
