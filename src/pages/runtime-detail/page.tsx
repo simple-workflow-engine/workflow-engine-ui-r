@@ -81,7 +81,7 @@ const RuntimeDetailPage: FC<Props> = () => {
               width: '100%',
             }}
           >
-            <Typography variant="h5">Runtime {data._id}</Typography>
+            <Typography variant="h5">Runtime</Typography>
             <Tooltip title="Refresh">
               <IconButton onClick={handleRefresh}>
                 <Refresh />
@@ -101,7 +101,15 @@ const RuntimeDetailPage: FC<Props> = () => {
                 width: '100%',
               }}
             >
-              <CardHeader title={<Typography>{data._id}</Typography>} />
+              <CardHeader
+                title={<Typography>{data._id}</Typography>}
+                action={
+                  <Chip
+                    label={data.workflowStatus.toUpperCase()}
+                    color={data.workflowStatus === 'completed' ? 'success' : undefined}
+                  />
+                }
+              />
               <CardContent>
                 <Stack rowGap={2}>
                   <Typography>Last Updated: {format(new Date(data?.updatedAt), 'dd MMM yyyy, hh:mm aa')}</Typography>
@@ -143,7 +151,6 @@ const RuntimeDetailPage: FC<Props> = () => {
                   <Typography
                     sx={{
                       fontWeight: 600,
-                      width: '100%',
                     }}
                   >
                     {taskName}
@@ -152,6 +159,7 @@ const RuntimeDetailPage: FC<Props> = () => {
                     sx={{
                       color: (theme) => theme.palette.grey['800'],
                       width: '100%',
+                      flex: 1,
                     }}
                   >
                     {log}

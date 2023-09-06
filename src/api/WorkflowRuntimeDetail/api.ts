@@ -5,6 +5,7 @@ const ResponseSchema = z.object({
   _id: z.string(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
+  workflowStatus: z.enum(['pending', 'completed', 'failed']),
   definition: z.object({
     _id: z.string(),
     name: z.string(),

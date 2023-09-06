@@ -50,15 +50,49 @@ const ExecMonaco: FC<Props> = ({ initialValue, setError, setValue, params }) => 
 
     monaco?.languages?.typescript?.typescriptDefaults?.addExtraLib(
       `
-      ${GlobalMap}
-      declare function getWorkflowGlobal(): GlobalMap;
-      ${ParamMap}
-      declare function getWorkflowParams(): ParamMap;
-      declare function getWorkflowResults(): Record<string,any>;
-      /**
-       * Logger 
-      */
-      declare function logger(...args: any[]): void;
+${GlobalMap}
+declare function getWorkflowGlobal(): GlobalMap;
+${ParamMap}
+declare function getWorkflowParams(): ParamMap;
+declare function getWorkflowResults(): Record<string,any>;
+/**
+* Logger 
+*/
+declare function logger(...args: any[]): void;
+
+function httpClient(params: {
+  url: string;
+  payload?: any;
+  headers: Record<string, any>;
+  method:
+    | "get"
+    | "GET"
+    | "delete"
+    | "DELETE"
+    | "head"
+    | "HEAD"
+    | "options"
+    | "OPTIONS"
+    | "post"
+    | "POST"
+    | "put"
+    | "PUT"
+    | "patch"
+    | "PATCH"
+    | "purge"
+    | "PURGE"
+    | "link"
+    | "LINK"
+    | "unlink"
+    | "UNLINK";
+  queryParams?: Record<string, any>;
+}): Promise<{ success: true; data: any } | { success: false; error: any }>;
+
+/**
+* Http Client
+*/
+declare function getHttpClient(): httpClient;
+
       `,
       'global.d.ts'
     );

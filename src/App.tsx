@@ -8,6 +8,7 @@ import NotFoundPage from './pages/404/page';
 
 const WorkflowListPage = lazy(() => import('@pages/workflow-list/page'));
 const WorkflowCreatePage = lazy(() => import('@pages/create/page'));
+const WorkflowEditPage = lazy(() => import('@pages/edit/page'));
 const WorkflowDetailPage = lazy(() => import('@pages/detail/page'));
 const RuntimeDetailPage = lazy(() => import('@pages/runtime-detail/page'));
 
@@ -44,6 +45,14 @@ const App = () => {
             element={
               <Suspense fallback={<PageLoader />}>
                 <WorkflowCreatePage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/edit/:id"
+            element={
+              <Suspense fallback={<PageLoader />}>
+                <WorkflowEditPage />
               </Suspense>
             }
           />
