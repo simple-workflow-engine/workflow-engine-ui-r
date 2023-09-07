@@ -10,6 +10,9 @@ const ResponseSchema = z.object({
     _id: z.string(),
     name: z.string(),
     status: z.enum(['active', 'inactive']),
+    description: z.string().optional(),
+    createdAt: z.string().datetime(),
+    updatedAt: z.string().datetime(),
   }),
   logs: z.array(z.string()),
   splittedLogs: z.array(
@@ -31,6 +34,7 @@ const ResponseSchema = z.object({
       status: z.enum(['pending', 'completed']),
     })
   ),
+  workflowResults: z.record(z.string(), z.any()).optional(),
 });
 
 export type ResponseSchemaType = z.infer<typeof ResponseSchema>;

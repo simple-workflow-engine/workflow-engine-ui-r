@@ -60,7 +60,10 @@ declare function getWorkflowResults(): Record<string,any>;
 */
 declare function logger(...args: any[]): void;
 
-function httpClient(params: {
+/**
+* Http Client
+*/
+declare function axios(params: {
   url: string;
   payload?: any;
   headers: Record<string, any>;
@@ -86,12 +89,7 @@ function httpClient(params: {
     | "unlink"
     | "UNLINK";
   queryParams?: Record<string, any>;
-}): Promise<{ success: true; data: any } | { success: false; error: any }>;
-
-/**
-* Http Client
-*/
-declare function getHttpClient(): httpClient;
+}): Promise<any>;
 
       `,
       'global.d.ts'

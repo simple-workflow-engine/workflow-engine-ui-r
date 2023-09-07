@@ -1,9 +1,21 @@
 import { API, API_NAME } from '@/api/WorkflowRuntimeDetail/api';
 import { useAuth0, withAuthenticationRequired } from '@auth0/auth0-react';
 import { Refresh } from '@mui/icons-material';
-import { Box, Card, CardContent, CardHeader, Chip, IconButton, Stack, Tooltip, Typography } from '@mui/material';
+import {
+  Box,
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  Chip,
+  IconButton,
+  Stack,
+  Tooltip,
+  Typography,
+} from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
+import { useSnackbar } from 'notistack';
 import type { FC } from 'react';
 import { Link, useParams } from 'react-router-dom';
 
@@ -12,6 +24,8 @@ interface Props {}
 const RuntimeDetailPage: FC<Props> = () => {
   const { getAccessTokenSilently } = useAuth0();
   const params = useParams<{ id: string }>();
+
+  const { enqueueSnackbar } = useSnackbar();
 
   const { data, isLoading, refetch } = useQuery({
     queryKey: [API_NAME, params?.id],
@@ -69,6 +83,32 @@ const RuntimeDetailPage: FC<Props> = () => {
                   />
                 }
               />
+              <CardContent>
+                <Stack rowGap={2}>
+                  <Typography
+                    variant="subtitle2"
+                    sx={{
+                      color: (theme) => theme.palette.grey['A700'],
+                    }}
+                  >
+                    {data?.definition?.description}
+                  </Typography>
+                  <Stack
+                    direction={{ sm: 'row', xs: 'column' }}
+                    columnGap={2}
+                    rowGap={2}
+                    justifyContent={'space-between'}
+                    alignItems={{ sm: 'center', xs: 'flex-start' }}
+                  >
+                    <Typography>
+                      Last Updated: {format(new Date(data?.definition?.updatedAt), 'dd MMM yyyy, hh:mm aa')}
+                    </Typography>
+                    <Typography>
+                      Created: {format(new Date(data?.definition?.createdAt), 'dd MMM yyyy, hh:mm aa')}
+                    </Typography>
+                  </Stack>
+                </Stack>
+              </CardContent>
             </Card>
           </Link>
           <Stack
@@ -117,6 +157,68 @@ const RuntimeDetailPage: FC<Props> = () => {
                 </Stack>
               </CardContent>
             </Card>
+            <Typography variant="h5">Tasks</Typography>
+            <Stack
+              direction={'row'}
+              sx={{
+                width: '100%',
+                flexWrap: 'wrap',
+                border: (theme) => `1px solid ${theme.palette.grey['A200']}`,
+                padding: 2,
+              }}
+              justifyContent={'flex-start'}
+              alignItems={'flex-start'}
+              rowGap={2}
+              columnGap={2}
+            >
+              {data.tasks.map((task) => (
+                <Card
+                  elevation={0}
+                  key={task.id}
+                  sx={{
+                    border: (theme) => `1px solid ${theme.palette.grey['100']}`,
+                  }}
+                >
+                  <CardHeader
+                    title={task.name}
+                    action={<Chip color="primary" size="small" label={task.type.toUpperCase()} />}
+                  />
+                  <CardContent>
+                    <Stack justifyContent={'flex-start'} alignItems={'flex-start'} rowGap={4}>
+                      <Stack direction={'row'} justifyContent={'flex-start'} alignItems={'center'} columnGap={1}>
+                        <Typography>Status:</Typography>
+                        <Chip
+                          size="small"
+                          label={task.status.toUpperCase()}
+                          color={task.status === 'completed' ? 'success' : undefined}
+                        />
+                      </Stack>
+                      {data?.workflowResults?.[task.name] && (
+                        <Tooltip title={JSON.stringify(data?.workflowResults?.[task.name], undefined, 4)}>
+                          <Button
+                            variant="outlined"
+                            onClick={() => {
+                              navigator.clipboard
+                                .writeText(JSON.stringify(data?.workflowResults?.[task.name], undefined, 4))
+                                .then(() => {
+                                  enqueueSnackbar('Result copied to Clipboard', {
+                                    variant: 'success',
+                                    autoHideDuration: 2 * 1000,
+                                  });
+                                })
+                                .catch();
+                            }}
+                          >
+                            Copy Result
+                          </Button>
+                        </Tooltip>
+                      )}
+                    </Stack>
+                  </CardContent>
+                </Card>
+              ))}
+            </Stack>
+
             <Typography variant="h5">Logs</Typography>
             <Stack
               sx={{
