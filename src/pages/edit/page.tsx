@@ -1,6 +1,6 @@
 import { useAuth0, withAuthenticationRequired } from '@auth0/auth0-react';
 import { Box, Typography } from '@mui/material';
-import { type FC } from 'react';
+import { useEffect, type FC } from 'react';
 
 import { ReactFlowProvider } from 'reactflow';
 
@@ -16,7 +16,7 @@ const WorkflowDefinitionEditPage: FC<Props> = () => {
   const params = useParams<{ id: string }>();
   const { getAccessTokenSilently } = useAuth0();
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, remove } = useQuery({
     queryKey: [API_NAME, params?.id],
     queryFn: async () => {
       if (params?.id) {
@@ -25,6 +25,13 @@ const WorkflowDefinitionEditPage: FC<Props> = () => {
       return null;
     },
   });
+
+  useEffect(
+    () => () => {
+      remove();
+    },
+    []
+  );
 
   return (
     <Box

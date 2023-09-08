@@ -48,6 +48,8 @@ import { useAuth0 } from '@auth0/auth0-react';
 import { enqueueSnackbar } from 'notistack';
 import { useWorkflowDefinitionContext } from '@/contexts/WorkflowDefinitionContext';
 import { useNavigate } from 'react-router-dom';
+import GuardTask from '@/components/Tasks/Guard';
+import ShieldIcon from '@mui/icons-material/Shield';
 
 const Transition = forwardRef(function Transition(
   props: TransitionProps & {
@@ -79,9 +81,10 @@ const nodeTypes: NodeTypes = {
   function: FunctionTask,
   start: StartTask,
   end: EndTask,
+  guard: GuardTask,
 };
 
-const taskCreator: Record<'function' | 'start' | 'end', () => Node> = {
+const taskCreator: Record<'function' | 'start' | 'end' | 'guard', () => Node> = {
   function: () => ({
     id: crypto.randomUUID(),
     data: {
@@ -111,6 +114,36 @@ const taskCreator: Record<'function' | 'start' | 'end', () => Node> = {
 
     position: { x: 100, y: 100 },
     type: 'function',
+  }),
+  guard: () => ({
+    id: crypto.randomUUID(),
+    data: {
+      label: ['Guard', crypto.randomUUID()].join(' '),
+      inputBoundId: crypto.randomUUID(),
+      outputBoundId: crypto.randomUUID(),
+      execTs: `
+      /**
+       * @returns {Promise<boolean>} Return Boolean output
+       * @see {@link https://docs.workflow-engine.com/Guard_Task}
+      */
+      async function handler(): Promise<boolean> {
+        return true;
+      }
+            `,
+      exec: `
+      /**
+       * @returns {Promise<boolean>} Return Boolean output
+       * @see {@link https://docs.workflow-engine.com/Guard_Task}
+      */
+      async function handler() {
+        return true;
+      }
+            `,
+      params: {},
+    },
+
+    position: { x: 100, y: 100 },
+    type: 'guard',
   }),
   start: () => ({
     id: crypto.randomUUID(),
@@ -421,6 +454,12 @@ const WorkflowCreate: FC<Props> = () => {
                   <StopCircleIcon />
                 </ListItemIcon>
                 <ListItemText>End</ListItemText>
+              </MenuItem>
+              <MenuItem onClick={() => addNewTask('guard')}>
+                <ListItemIcon>
+                  <ShieldIcon />
+                </ListItemIcon>
+                <ListItemText>Guard</ListItemText>
               </MenuItem>
             </Menu>
           </Stack>
