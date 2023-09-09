@@ -6,6 +6,7 @@ import { useRef } from 'react';
 import { transpile, ScriptTarget, ModuleKind } from 'typescript';
 import JsonToTS from 'json-to-ts';
 import { useWorkflowDefinitionContext } from '@/contexts/WorkflowDefinitionContext';
+import { useReactFlow } from 'reactflow';
 
 interface Props {
   initialValue: string;
@@ -16,6 +17,7 @@ interface Props {
 
 const ExecMonaco: FC<Props> = ({ initialValue, setError, setValue, params }) => {
   const theme = useTheme();
+  const { getNodes } = useReactFlow();
   const editorRef = useRef<ElementRef<typeof Editor>>();
   const { config } = useWorkflowDefinitionContext();
 
@@ -40,6 +42,9 @@ const ExecMonaco: FC<Props> = ({ initialValue, setError, setValue, params }) => 
   const onMount: OnMount = (editor, monaco) => {
     editorRef.current = editor;
 
+    const nodes = getNodes();
+    const ResultMap = nodes.map((node) => `"${node.data?.label}"`).join(' | ');
+
     const GlobalMap = JsonToTS(config, {
       rootName: 'GlobalMap',
     }).join('\n');
@@ -50,20 +55,22 @@ const ExecMonaco: FC<Props> = ({ initialValue, setError, setValue, params }) => 
 
     monaco?.languages?.typescript?.typescriptDefaults?.addExtraLib(
       `
+type ResultMap = Record<${ResultMap}, unknown>;
 ${GlobalMap}
 declare function getWorkflowGlobal(): GlobalMap;
 ${ParamMap}
 declare function getWorkflowParams(): ParamMap;
-declare function getWorkflowResults(): Record<string,any>;
+declare function getWorkflowResults(): ResultMap;
 /**
 * Logger 
 */
 declare function logger(...args: any[]): void;
 
 /**
-* Http Client
+* Axios Wrapper Http Client
+* @returns {Promise<T>} Response Body Promise
 */
-declare function axios(params: {
+declare function axios<T=unknown>(params: {
   url: string;
   payload?: any;
   headers: Record<string, any>;
@@ -89,7 +96,7 @@ declare function axios(params: {
     | "unlink"
     | "UNLINK";
   queryParams?: Record<string, any>;
-}): Promise<any>;
+}): Promise<T>;
 
       `,
       'global.d.ts'

@@ -51,6 +51,8 @@ import { useNavigate } from 'react-router-dom';
 import type { ResponseSchemaType } from '@/api/WorkflowDefinitionSingle/api';
 import GuardTask from '@/components/Tasks/Guard';
 import ShieldIcon from '@mui/icons-material/Shield';
+import WaitTask from '@/components/Tasks/Wait';
+import PanToolIcon from '@mui/icons-material/PanTool';
 
 const Transition = forwardRef(function Transition(
   props: TransitionProps & {
@@ -83,9 +85,10 @@ const nodeTypes: NodeTypes = {
   start: StartTask,
   end: EndTask,
   guard: GuardTask,
+  wait: WaitTask,
 };
 
-const taskCreator: Record<'function' | 'start' | 'end' | 'guard', () => Node> = {
+const taskCreator: Record<'function' | 'start' | 'end' | 'guard' | 'wait', () => Node> = {
   function: () => ({
     id: crypto.randomUUID(),
     data: {
@@ -145,6 +148,19 @@ const taskCreator: Record<'function' | 'start' | 'end' | 'guard', () => Node> = 
 
     position: { x: 100, y: 100 },
     type: 'guard',
+  }),
+  wait: () => ({
+    id: crypto.randomUUID(),
+    data: {
+      label: ['Wait', crypto.randomUUID()].join(' '),
+      inputBoundId: crypto.randomUUID(),
+      outputBoundId: crypto.randomUUID(),
+      params: {
+        taskNames: [],
+      },
+    },
+    position: { x: 100, y: 100 },
+    type: 'wait',
   }),
   start: () => ({
     id: crypto.randomUUID(),
@@ -383,6 +399,12 @@ const WorkflowEdit: FC<Props> = ({ definition }) => {
                   <ShieldIcon />
                 </ListItemIcon>
                 <ListItemText>Guard</ListItemText>
+              </MenuItem>
+              <MenuItem onClick={() => addNewTask('wait')}>
+                <ListItemIcon>
+                  <PanToolIcon />
+                </ListItemIcon>
+                <ListItemText>Wait</ListItemText>
               </MenuItem>
             </Menu>
           </Stack>
