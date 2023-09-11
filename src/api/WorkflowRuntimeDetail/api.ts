@@ -31,7 +31,7 @@ const ResponseSchema = z.object({
       params: z.record(z.string(), z.any()).optional(),
       exec: z.string().optional(),
       type: z.enum(['FUNCTION', 'WAIT', 'START', 'END', 'LISTEN', 'GUARD']),
-      status: z.enum(['pending', 'completed']),
+      status: z.enum(['pending', 'completed', 'started', 'failed']),
     })
   ),
   workflowResults: z.record(z.string(), z.any()).optional(),
