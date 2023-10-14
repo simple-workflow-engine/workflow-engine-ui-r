@@ -27,7 +27,7 @@ export const API = async (getAccessTokenSilently: Function, id: string) => {
     throw new Error('Unauthorized');
   }
 
-  const response = await httpClient.get(`/definition/single/${id}`, {
+  const response = await httpClient.get(`/definition/${id}`, {
     headers: {
       Authorization: ['Bearer', token].join(' '),
     },

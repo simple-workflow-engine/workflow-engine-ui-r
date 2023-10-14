@@ -22,7 +22,7 @@ export const API = async (getAccessTokenSilently: Function) => {
     throw new Error('Unauthorized');
   }
 
-  const response = await httpClient.get('/definition', {
+  const response = await httpClient.get('/definition/list', {
     headers: {
       Authorization: ['Bearer', token].join(' '),
     },

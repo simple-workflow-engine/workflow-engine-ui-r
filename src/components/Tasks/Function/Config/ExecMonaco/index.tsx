@@ -57,14 +57,10 @@ const ExecMonaco: FC<Props> = ({ initialValue, setError, setValue, params }) => 
       `
 type ResultMap = Record<${ResultMap}, unknown>;
 ${GlobalMap}
-declare function getWorkflowGlobal(): GlobalMap;
+declare var workflowGlobal: GlobalMap;
 ${ParamMap}
-declare function getWorkflowParams(): ParamMap;
-declare function getWorkflowResults(): ResultMap;
-/**
-* Logger 
-*/
-declare function logger(...args: any[]): void;
+declare var workflowParams: ParamMap;
+declare var workflowResults: ResultMap;
 
 /**
 * Axios Wrapper Http Client
@@ -73,7 +69,7 @@ declare function logger(...args: any[]): void;
 declare function axios<T=unknown>(params: {
   url: string;
   payload?: any;
-  headers: Record<string, any>;
+  headers?: Record<string, any>;
   method:
     | "get"
     | "GET"
@@ -95,7 +91,11 @@ declare function axios<T=unknown>(params: {
     | "LINK"
     | "unlink"
     | "UNLINK";
-  queryParams?: Record<string, any>;
+  params?: Record<string, any>;
+  auth?: {
+    username: string;
+    password: string;
+  };
 }): Promise<T>;
 
       `,

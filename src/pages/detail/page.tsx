@@ -129,6 +129,16 @@ const WorkflowDetailPage: FC<Props> = () => {
               </Card>
             </Link>
           ))}
+          {data.runtimes?.length < 1 ? (
+            <Typography
+              sx={{
+                textAlign: 'center',
+                width: '100%',
+              }}
+            >
+              No runtime found!
+            </Typography>
+          ) : null}
         </Stack>
       )}
     </Box>

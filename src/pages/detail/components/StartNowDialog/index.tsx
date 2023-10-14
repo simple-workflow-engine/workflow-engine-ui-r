@@ -90,7 +90,7 @@ const StartNowDialog: FC<Props> = ({ workflowDefinitionId, refetch }) => {
 
     httpClient
       .post(
-        '/workflow/start',
+        '/transport/start',
         {
           workflowDefinitionId,
           globalParams: values.global,

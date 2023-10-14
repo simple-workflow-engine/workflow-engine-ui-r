@@ -92,6 +92,16 @@ const WorkflowListPage: FC<Props> = () => {
                 </Card>
               </Link>
             ))}
+            {data?.length < 1 ? (
+              <Typography
+                sx={{
+                  textAlign: 'center',
+                  width: '100%',
+                }}
+              >
+                No definitions found!
+              </Typography>
+            ) : null}
           </Stack>
         )}
         {isLoading && (

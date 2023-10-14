@@ -97,20 +97,18 @@ const taskCreator: Record<'function' | 'start' | 'end' | 'guard' | 'wait', () =>
       outputBoundId: crypto.randomUUID(),
       execTs: `
       /**
-       * @returns {Promise<string>} Return JSON.stringify output. If you want to return any object, send it JSON.stringify. For null/undefined, return JSON.stringify({})
        * @see {@link https://docs.workflow-engine.com/Function_Task}
       */
-      async function handler(): Promise<string> {
-        return JSON.stringify({});
+      async function handler() {
+        return {"hello":"world"};
       }
             `,
       exec: `
             /**
-             * @returns {Promise<string>} Return JSON.stringify output. If you want to return any object, send it JSON.stringify. For null/undefined, return JSON.stringify({})
              * @see {@link https://docs.workflow-engine.com/Function_Task}
              */
             async function handler() {
-              return JSON.stringify({});
+              return {"hello":"world"};
             }
             `,
       params: {},
@@ -303,7 +301,7 @@ const WorkflowEdit: FC<Props> = ({ definition }) => {
 
     await httpClient
       .put(
-        `/definition/edit-workflow/${definition._id}`,
+        `/definition/edit/${definition._id}`,
         {
           workflowData,
           key: 'react',
