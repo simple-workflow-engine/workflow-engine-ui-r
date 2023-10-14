@@ -14,7 +14,14 @@ const ResponseSchema = z.object({
     createdAt: z.string().datetime(),
     updatedAt: z.string().datetime(),
   }),
-  logs: z.array(z.any()),
+  logs: z.array(
+    z.object({
+      timestamp: z.string().datetime(),
+      taskName: z.string(),
+      log: z.string(),
+      severity: z.enum(['log', 'info', 'warn', 'error']),
+    })
+  ),
   tasks: z.array(
     z.object({
       id: z.string(),

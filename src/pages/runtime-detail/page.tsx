@@ -220,7 +220,7 @@ const RuntimeDetailPage: FC<Props> = () => {
             </Stack>
 
             <Typography variant="h5">Logs</Typography>
-            {/* <Stack
+            <Stack
               sx={{
                 width: '100%',
                 overflowX: 'auto',
@@ -231,24 +231,25 @@ const RuntimeDetailPage: FC<Props> = () => {
               justifyContent={'flex-start'}
               alignItems={'flex-start'}
             >
-              {data.splittedLogs.map(({ datetime, log, taskName }, index) => (
+              {data.logs.map(({ log, timestamp, severity, taskName }, index) => (
                 <Stack
-                  key={datetime}
+                  key={timestamp}
                   direction={'row'}
                   justifyContent={'flex-start'}
                   alignItems={'center'}
                   columnGap={2}
                   sx={{
                     width: '100%',
-                    ...(index < data.splittedLogs.length - 1 && {
+                    ...(index < data.logs.length - 1 && {
                       borderBottom: (theme) => `1px solid ${theme.palette.grey['200']}`,
                     }),
                     paddingY: 2,
                     paddingX: 1,
                   }}
                 >
-                  <Tooltip title={format(new Date(datetime), 'dd MMM yyyy, hh:mm aa')}>
-                    <Chip label={datetime} />
+                  <Chip label={severity} />
+                  <Tooltip title={format(new Date(timestamp), 'dd MMM yyyy, hh:mm aa')}>
+                    <Chip label={timestamp} />
                   </Tooltip>
                   <Typography
                     sx={{
@@ -268,7 +269,7 @@ const RuntimeDetailPage: FC<Props> = () => {
                   </Typography>
                 </Stack>
               ))}
-            </Stack> */}
+            </Stack>
           </Stack>
         </Stack>
       )}
