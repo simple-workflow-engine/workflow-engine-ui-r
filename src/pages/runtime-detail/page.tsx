@@ -220,7 +220,7 @@ const RuntimeDetailPage: FC<Props> = () => {
             </Stack>
 
             <Typography variant="h5">Logs</Typography>
-            <Stack
+            {/* <Stack
               sx={{
                 width: '100%',
                 overflowX: 'auto',
@@ -268,7 +268,7 @@ const RuntimeDetailPage: FC<Props> = () => {
                   </Typography>
                 </Stack>
               ))}
-            </Stack>
+            </Stack> */}
           </Stack>
         </Stack>
       )}

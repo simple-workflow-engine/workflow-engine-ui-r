@@ -29,7 +29,7 @@ export const API = async (getAccessTokenSilently: Function, id: string) => {
   }
 
   const response = await httpClient
-    .get(`/definition/${id}`, {
+    .get(`/definition/${id}/detail`, {
       headers: {
         Authorization: ['Bearer', token].join(' '),
       },

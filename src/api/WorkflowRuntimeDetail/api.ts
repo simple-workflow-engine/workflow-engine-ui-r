@@ -14,14 +14,7 @@ const ResponseSchema = z.object({
     createdAt: z.string().datetime(),
     updatedAt: z.string().datetime(),
   }),
-  logs: z.array(z.string()),
-  splittedLogs: z.array(
-    z.object({
-      datetime: z.string().datetime(),
-      taskName: z.string(),
-      log: z.string(),
-    })
-  ),
+  logs: z.array(z.any()),
   tasks: z.array(
     z.object({
       id: z.string(),
@@ -48,7 +41,7 @@ export const API = async (getAccessTokenSilently: Function, id: string) => {
   }
 
   const response = await httpClient
-    .get(`/runtime/${id}`, {
+    .get(`/runtime/${id}/detail`, {
       headers: {
         Authorization: ['Bearer', token].join(' '),
       },
