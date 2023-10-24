@@ -84,7 +84,6 @@ const Layout: FC<Props> = ({ children }) => {
         component={'footer'}
         sx={{
           width: '100%',
-          backgroundColor: (theme) => theme.palette.grey['100'],
         }}
       >
         <Stack
@@ -104,23 +103,13 @@ const Layout: FC<Props> = ({ children }) => {
           <Stack direction={'row'} justifyContent={'flex-start'} alignItems={'center'} columnGap={2}>
             <Typography
               component={'a'}
-              href="https://github.com/nisargrbhatt/workflow-engine/blob/master/TASKS.md"
+              href="https://workflow-engine-docs.pages.dev"
               target="_blank"
               sx={{
                 color: (theme) => theme.palette.primary.main,
               }}
             >
-              Task Guide
-            </Typography>
-            <Typography
-              component={'a'}
-              href="https://discord.com/users/588309124010213396"
-              target="_blank"
-              sx={{
-                color: (theme) => theme.palette.primary.main,
-              }}
-            >
-              Discord
+              Documentation
             </Typography>
           </Stack>
           <Typography

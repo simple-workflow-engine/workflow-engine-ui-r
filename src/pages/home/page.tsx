@@ -1,7 +1,13 @@
-import { Stack } from '@mui/material';
+import { Stack, styled } from '@mui/material';
 import Typography from '@mui/material/Typography';
 
 import { type FC } from 'react';
+
+const Image = styled('img')(() => ({
+  aspectRatio: '16/9',
+  objectFit: 'contain',
+  width: 'auto',
+}));
 
 interface Props {}
 
@@ -40,12 +46,9 @@ const HomePage: FC<Props> = () => (
       Workflow That You Can Decode and Debug
     </Typography>
 
-    <img
-      style={{
-        width: 'auto',
-        height: '500px',
-        aspectRatio: '16/9',
-        objectFit: 'contain',
+    <Image
+      sx={{
+        height: { sm: '500px', xs: '300px' },
       }}
       src="/workflow-ill.jpg"
       title="Image by vectorjuice on Freepik"
