@@ -1,5 +1,4 @@
 import 'reactflow/dist/style.css';
-import FunctionTask from '@/components/Tasks/Function';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   AppBar,
@@ -23,7 +22,7 @@ import type { TransitionProps } from '@mui/material/transitions';
 import type { FC, MouseEvent, ReactElement, Ref } from 'react';
 import { forwardRef, useCallback, useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import type { Connection, Edge, Node, NodeTypes } from 'reactflow';
+import type { Connection, Edge, Node } from 'reactflow';
 import ReactFlow, {
   Background,
   Controls,
@@ -38,20 +37,18 @@ import { z } from 'zod';
 import WorkflowGlobalMonaco from '../WorkflowGlobalMonaco';
 import { Error } from '@mui/icons-material';
 import FunctionsIcon from '@mui/icons-material/Functions';
-import StartTask from '@/components/Tasks/Start';
 import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import StopCircleIcon from '@mui/icons-material/StopCircle';
-import EndTask from '@/components/Tasks/End';
 import { LoadingButton } from '@mui/lab';
 import { httpClient } from '@/lib/http/httpClient';
 import { useAuth0 } from '@auth0/auth0-react';
 import { enqueueSnackbar } from 'notistack';
 import { useWorkflowDefinitionContext } from '@/contexts/WorkflowDefinitionContext';
 import { useNavigate } from 'react-router-dom';
-import GuardTask from '@/components/Tasks/Guard';
 import ShieldIcon from '@mui/icons-material/Shield';
-import WaitTask from '@/components/Tasks/Wait';
 import PanToolIcon from '@mui/icons-material/PanTool';
+import { nodeTypes, taskCreator } from '@lib/creators/task';
+import WebhookIcon from '@mui/icons-material/Webhook';
 
 const Transition = forwardRef(function Transition(
   props: TransitionProps & {
@@ -79,108 +76,6 @@ const workflowMetadataFormSchema = z.object({
 
 type WorkflowMetadataFormSchema = z.infer<typeof workflowMetadataFormSchema>;
 
-const nodeTypes: NodeTypes = {
-  function: FunctionTask,
-  start: StartTask,
-  end: EndTask,
-  guard: GuardTask,
-  wait: WaitTask,
-};
-
-const taskCreator: Record<'function' | 'start' | 'end' | 'guard' | 'wait', () => Node> = {
-  function: () => ({
-    id: crypto.randomUUID(),
-    data: {
-      label: ['Function', crypto.randomUUID()].join(' '),
-      inputBoundId: crypto.randomUUID(),
-      outputBoundId: crypto.randomUUID(),
-      execTs: `
-      /**
-       * @see {@link https://docs.workflow-engine.com/Function_Task}
-      */
-      async function handler() {
-        return {"hello":"world"};
-      }
-            `,
-      exec: `
-            /**
-             * @see {@link https://docs.workflow-engine.com/Function_Task}
-             */
-            async function handler() {
-              return {"hello":"world"};
-            }
-            `,
-      params: {},
-    },
-
-    position: { x: 100, y: 100 },
-    type: 'function',
-  }),
-  guard: () => ({
-    id: crypto.randomUUID(),
-    data: {
-      label: ['Guard', crypto.randomUUID()].join(' '),
-      inputBoundId: crypto.randomUUID(),
-      outputBoundId: crypto.randomUUID(),
-      execTs: `
-      /**
-       * @returns {Promise<boolean>} Return Boolean output
-       * @see {@link https://docs.workflow-engine.com/Guard_Task}
-      */
-      async function handler(): Promise<boolean> {
-        return true;
-      }
-            `,
-      exec: `
-      /**
-       * @returns {Promise<boolean>} Return Boolean output
-       * @see {@link https://docs.workflow-engine.com/Guard_Task}
-      */
-      async function handler() {
-        return true;
-      }
-            `,
-      params: {},
-    },
-
-    position: { x: 100, y: 100 },
-    type: 'guard',
-  }),
-  wait: () => ({
-    id: crypto.randomUUID(),
-    data: {
-      label: ['Wait', crypto.randomUUID()].join(' '),
-      inputBoundId: crypto.randomUUID(),
-      outputBoundId: crypto.randomUUID(),
-      params: {
-        taskNames: [],
-      },
-    },
-    position: { x: 100, y: 100 },
-    type: 'wait',
-  }),
-  start: () => ({
-    id: crypto.randomUUID(),
-    data: {
-      label: ['Start', crypto.randomUUID()].join(' '),
-      outputBoundId: crypto.randomUUID(),
-      params: {},
-    },
-    position: { x: 100, y: 100 },
-    type: 'start',
-  }),
-  end: () => ({
-    id: crypto.randomUUID(),
-    data: {
-      label: ['End', crypto.randomUUID()].join(' '),
-      inputBoundId: crypto.randomUUID(),
-      params: {},
-    },
-    position: { x: 100, y: 100 },
-    type: 'end',
-  }),
-};
-
 const initialNodes: Node[] = [
   {
     id: 'a8c86331-880f-43d1-8bdb-906f5b2715b0',
@@ -193,7 +88,7 @@ const initialNodes: Node[] = [
       outputBoundId: '6e61e128-1d27-4cad-b597-653990a9ca67',
       execTs: `
       /**
-       * @see {@link https://docs.workflow-engine.com/Function_Task}
+       * @see {@link https://workflow-engine-docs.pages.dev/docs/tasks/function_task}
       */
       async function handler() {
         return {"hello":"world"};
@@ -201,7 +96,7 @@ const initialNodes: Node[] = [
             `,
       exec: `
             /**
-             * @see {@link https://docs.workflow-engine.com/Function_Task}
+             * @see {@link https://workflow-engine-docs.pages.dev/docs/tasks/function_task}
              */
             async function handler() {
               return {"hello":"world"};
@@ -496,6 +391,12 @@ const WorkflowCreate: FC<Props> = () => {
                   <PanToolIcon />
                 </ListItemIcon>
                 <ListItemText>Wait</ListItemText>
+              </MenuItem>
+              <MenuItem onClick={() => addNewTask('listen')}>
+                <ListItemIcon>
+                  <WebhookIcon />
+                </ListItemIcon>
+                <ListItemText>Listen</ListItemText>
               </MenuItem>
             </Menu>
           </Stack>

@@ -84,11 +84,10 @@ const FunctionConfigPanel: FC<Props> = ({ onSubmit, initialValue, deleteNode, id
         initialValue?.execTs ??
         `
 /**
- * @returns {Promise<string>} Return JSON.stringify output. If you want to return any object, send it JSON.stringify. For null/undefined, return JSON.stringify({})
- * @see {@link https://docs.workflow-engine.com/Function_Task}
+ * @see {@link https://workflow-engine-docs.pages.dev/docs/tasks/function_task}
 */
-async function handler(): Promise<string> {
-  return JSON.stringify({});
+async function handler(){
+  return {};
 }
       `,
     },

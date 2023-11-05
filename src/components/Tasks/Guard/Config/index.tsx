@@ -85,7 +85,7 @@ const GuardConfigPanel: FC<Props> = ({ onSubmit, initialValue, deleteNode, id })
         `
 /**
  * @returns {Promise<boolean>} Return Boolean output
- * @see {@link https://docs.workflow-engine.com/Guard_Task}
+ * @see {@link https://workflow-engine-docs.pages.dev/docs/tasks/guard_task}
 */
 async function handler(): Promise<boolean> {
   return true;
